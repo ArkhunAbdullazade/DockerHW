@@ -1,0 +1,76 @@
+version: '1'
+
+services:
+  usersapi:
+    image: userswebapi
+    container_name: usersapi
+    depends_on:
+      - mongodb
+      - mssqldb
+    build:
+      context: .
+      dockerfile: UsersDockerfile.dockerfile
+    expose:
+      - 8080
+    ports:
+      - 5247:8080
+    networks:
+      - bridgenetwork
+    restart: always
+
+  booksapi:
+    image: bookswebapi
+    container_name: booksapi
+    depends_on:
+      - mongodb
+    build:
+      context: .
+      dockerfile: BooksDockerfile.dockerfile
+    expose:
+      - 8080
+    ports:
+      - 5187:8080
+    networks:
+      - bridgenetwork
+    restart: always
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    networks:
+      - bridgenetwork
+    volumes:
+      - mongovolume:/data/db
+      - mongovolume:/data/configdb
+    restart: always
+
+  mssqldb:
+    image: "mcr.microsoft.com/mssql/server"
+    container_name: mssqldb
+    expose:
+      - 1433
+    ports:
+      - 14209:1433
+    networks:
+      - bridgenetwork
+    volumes:             
+      - mssqlvolume:/var/opt/mssql/data
+      - mssqlvolume:/var/opt/mssql/log
+      - mssqlvolume:/var/opt/mssql/secrets
+    user: root
+    environment:
+        ACCEPT_EULA: "Y"
+        MSSQL_SA_PASSWORD: "Ark_Hun1401!"
+    restart: always
+
+networks:
+  bridgenetwork:
+    driver: bridge
+
+volumes:
+  mongovolume:
+  mssqlvolume:
